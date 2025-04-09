@@ -80,6 +80,26 @@ const handleApiError = async <T>(promise: Promise<T>): Promise<[T | null, Error 
 
 export const authService = {
   login: async (email: string, senha: string) => {
+    // Verifica se está em produção e sem API configurada
+    const isOfflineMode = !import.meta.env.VITE_API_URL && import.meta.env.PROD;
+    
+    if (isOfflineMode) {
+      // Usando credenciais fixas para modo offline
+      if (email === 'teste@vidaplus.com' && senha === '123456') {
+        const mockUser = {
+          id: 1,
+          nome: 'Administrador',
+          email: 'teste@vidaplus.com',
+          tipo: 'admin'
+        };
+        localStorage.setItem('token', 'mock-offline-token');
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        return { token: 'mock-offline-token', usuario: mockUser };
+      }
+      throw new Error('Credenciais inválidas');
+    }
+    
+    // Código existente para modo online
     const [data, error] = await handleApiError(api.post('/auth/login', { email, senha }));
     if (error) throw error;
     
