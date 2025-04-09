@@ -9,14 +9,12 @@ import { NotificationProvider } from './components/Notification';
 
 // Função para iniciar a aplicação
 async function startApp() {
-  // Em desenvolvimento, inicializa o mock service worker
-  if (import.meta.env.DEV) {
-    try {
-      await initMockWorker();
-      console.log('Mock Service Worker iniciado com sucesso');
-    } catch (error) {
-      console.error('Erro ao iniciar Mock Service Worker:', error);
-    }
+  // Inicializa o mock service worker tanto em dev quanto em produção
+  try {
+    await initMockWorker();
+    console.log('Mock Service Worker iniciado com sucesso');
+  } catch (error) {
+    console.error('Erro ao iniciar Mock Service Worker:', error);
   }
 
   // Renderiza a aplicação
