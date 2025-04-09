@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Paciente, Consulta, Profissional, Medicamento, Prontuario, ApiError } from '../types';
+import { Paciente, Consulta, ApiError } from '../types';
 
 // Estado global para controle de loading
 export const loadingState = {

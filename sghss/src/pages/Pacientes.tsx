@@ -11,8 +11,7 @@ import {
   Paper,
   TextField, 
   IconButton, 
-  InputAdornment,
-  Chip
+  InputAdornment
 } from '@mui/material';
 import { Add, Search, FilterList, Edit, Delete, VisibilityOutlined } from '@mui/icons-material';
 import PacienteForm from '../components/PacienteForm';

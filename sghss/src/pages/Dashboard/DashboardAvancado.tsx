@@ -14,7 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ptBR } from 'date-fns/locale';
-import { addDays, format, subDays, subMonths, parseISO } from 'date-fns';
+import { format, subDays, subMonths } from 'date-fns';
 
 import { dashboardService } from '../../services/api';
 import useApi from '../../hooks/useApi';
@@ -92,7 +92,7 @@ const DashboardAvancado = () => {
     });
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
   
@@ -327,7 +327,7 @@ const DashboardAvancado = () => {
                         dataKey="value"
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        {dadosMock.consultasPorTipo.map((item, index) => (
+                        {dadosMock.consultasPorTipo.map((_item, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>

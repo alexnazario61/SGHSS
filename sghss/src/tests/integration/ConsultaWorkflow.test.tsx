@@ -15,12 +15,6 @@ import Consultas from '../../pages/Consultas';
 import { NotificationProvider } from '../../components/Notification';
 import theme from '../../theme';
 
-// Interface para o formulário de consulta
-interface ConsultaFormProps {
-  open: boolean;
-  onClose: () => void;
-}
-
 interface NovaConsulta {
   pacienteId: number;
   medicoId: number;
