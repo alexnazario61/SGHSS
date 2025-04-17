@@ -80,12 +80,27 @@ const handleApiError = async <T>(promise: Promise<T>): Promise<[T | null, Error 
 
 export const authService = {
   login: async (email: string, senha: string) => {
-    // Verifica se está em produção e sem API configurada
-    const isOfflineMode = !import.meta.env.VITE_API_URL && import.meta.env.PROD;
-    
-    if (isOfflineMode) {
-      // Usando credenciais fixas para modo offline
+    // Tenta login direto - vai tentar via MSW primeiro
+    try {
+      // Console para debug
+      console.log("Tentando login via API/MSW");
+      
+      const response = await api.post('/auth/login', { email, senha });
+      
+      if (response?.data) {
+        console.log("Login via API/MSW bem-sucedido:", response.data);
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user || response.data.usuario));
+        return response.data;
+      }
+      
+      throw new Error('Resposta inválida do servidor');
+    } catch (error) {
+      console.log("Erro no login via API/MSW, tentando modo offline:", error);
+      
+      // Credentials hardcoded para ambiente de produção
       if (email === 'teste@vidaplus.com' && senha === '123456') {
+        console.log("Login em modo offline bem-sucedido");
         const mockUser = {
           id: 1,
           nome: 'Administrador',
@@ -96,19 +111,10 @@ export const authService = {
         localStorage.setItem('user', JSON.stringify(mockUser));
         return { token: 'mock-offline-token', usuario: mockUser };
       }
+      
+      // Se chegou aqui, falhou em ambas as tentativas
       throw new Error('Credenciais inválidas');
     }
-    
-    // Código existente para modo online
-    const [data, error] = await handleApiError(api.post('/auth/login', { email, senha }));
-    if (error) throw error;
-    
-    if (data) {
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
-      return data.data;
-    }
-    return null;
   },
   logout: () => {
     localStorage.removeItem('token');

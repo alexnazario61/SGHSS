@@ -1,13 +1,95 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Container, Typography, Box, Button, Grid, 
-  Card, CardContent, CardActions, Chip 
+  Card, CardContent, CardActions, Chip, CircularProgress 
 } from '@mui/material';
-import VideoCall from '../../components/Telemedicina/VideoCall';
+import { useNotification } from '../../components/Notification';
+
+// Versão simulada do componente de chamada de vídeo que não depende de API
+const MockVideoCall = ({ onEndCall }: { onEndCall: () => void }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const { showNotification } = useNotification();
+
+  // Simula carregamento da chamada
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      showNotification('Chamada conectada em modo simulado', 'success');
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100%',
+        flexDirection: 'column',
+        gap: 2
+      }}>
+        <CircularProgress />
+        <Typography>Conectando chamada...</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ 
+      width: '100%', 
+      height: '100%', 
+      bgcolor: '#121212', 
+      position: 'relative',
+      borderRadius: 2,
+      overflow: 'hidden'
+    }}>
+      {/* Background simulado de uma chamada */}
+      <Box sx={{ 
+        width: '100%', 
+        height: '100%', 
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        flexDirection: 'column',
+        gap: 2
+      }}>
+        <Typography variant="h5">Videochamada em Andamento</Typography>
+        <Typography variant="body1">(Versão simulada para demonstração)</Typography>
+        
+        {/* Avatar do paciente */}
+        <Box sx={{ 
+          width: 120, 
+          height: 120, 
+          borderRadius: '50%', 
+          bgcolor: '#2196f3',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontSize: '3rem',
+          mb: 2
+        }}>
+          P
+        </Box>
+
+        <Button 
+          variant="contained" 
+          color="error" 
+          onClick={onEndCall}
+          sx={{ mt: 2 }}
+        >
+          Encerrar Chamada
+        </Button>
+      </Box>
+    </Box>
+  );
+};
 
 const Telemedicina = () => {
   const [chamadaAtiva, setChamadaAtiva] = useState(false);
   const [consultaId, setConsultaId] = useState<number | null>(null);
+  const { showNotification } = useNotification();
   
   // Exemplos de consultas para demonstração
   const consultas = [
@@ -37,11 +119,13 @@ const Telemedicina = () => {
   const iniciarChamada = (id: number) => {
     setConsultaId(id);
     setChamadaAtiva(true);
+    showNotification('Iniciando chamada...', 'info');
   };
   
   const encerrarChamada = () => {
     setChamadaAtiva(false);
     setConsultaId(null);
+    showNotification('Chamada encerrada', 'info');
   };
   
   if (chamadaAtiva && consultaId) {
@@ -56,7 +140,7 @@ const Telemedicina = () => {
           </Button>
         </Box>
         <Box sx={{ height: 'calc(100% - 60px)' }}>
-          <VideoCall consultaId={consultaId} onEndCall={encerrarChamada} />
+          <MockVideoCall onEndCall={encerrarChamada} />
         </Box>
       </Container>
     );
