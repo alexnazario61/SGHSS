@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import { useNotification } from '../../components/Notification';
 
-// Versão simulada do componente de chamada de vídeo que não depende de API
+// Versão atualizada do componente de chamada de vídeo com exemplos visuais
 const MockVideoCall = ({ onEndCall }: { onEndCall: () => void }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { showNotification } = useNotification();
@@ -18,6 +18,60 @@ const MockVideoCall = ({ onEndCall }: { onEndCall: () => void }) => {
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Cria uma stream de vídeo de exemplo usando canvas
+  useEffect(() => {
+    if (!isLoading) {
+      // Função para criar vídeo simulado para o médico
+      const createMockStream = (canvasId: string, color: string, text: string) => {
+        const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
+        const drawFrame = () => {
+          // Desenha background
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Adiciona texto
+          ctx.fillStyle = 'white';
+          ctx.font = '20px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+          
+          // Simula movimento para parecer um vídeo
+          const date = new Date();
+          ctx.fillText(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`, 
+            canvas.width / 2, canvas.height / 2 + 30);
+          
+          requestAnimationFrame(drawFrame);
+        };
+        
+        drawFrame();
+        
+        // Conecta o canvas a um elemento de vídeo como stream
+        const mockVideo = document.getElementById(`video-${canvasId}`) as HTMLVideoElement;
+        if (mockVideo && canvas) {
+          try {
+            // @ts-ignore - Canvas captureStream é uma API experimental
+            const stream = canvas.captureStream(30);
+            mockVideo.srcObject = stream;
+            mockVideo.play().catch(e => console.error("Erro ao iniciar vídeo:", e));
+          } catch (error) {
+            console.error("Navegador não suporta captureStream:", error);
+          }
+        }
+      };
+      
+      // Iniciar vídeos simulados
+      setTimeout(() => {
+        createMockStream('canvas-medico', '#2196f3', 'MÉDICO');
+        createMockStream('canvas-paciente', '#4caf50', 'PACIENTE');
+      }, 500);
+    }
+  }, [isLoading]);
 
   if (isLoading) {
     return (
@@ -44,43 +98,82 @@ const MockVideoCall = ({ onEndCall }: { onEndCall: () => void }) => {
       borderRadius: 2,
       overflow: 'hidden'
     }}>
-      {/* Background simulado de uma chamada */}
+      {/* Vídeo principal - médico */}
       <Box sx={{ 
         width: '100%', 
-        height: '100%', 
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: 'white',
-        flexDirection: 'column',
-        gap: 2
+        height: '100%',
+        position: 'relative'
       }}>
-        <Typography variant="h5">Videochamada em Andamento</Typography>
-        <Typography variant="body1">(Versão simulada para demonstração)</Typography>
+        <canvas 
+          id="canvas-medico" 
+          width="640" 
+          height="480" 
+          style={{ display: 'none' }}
+        ></canvas>
+        <video 
+          id="video-canvas-medico"
+          autoPlay 
+          playsInline
+          muted
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain'
+          }}
+        ></video>
         
-        {/* Avatar do paciente */}
+        {/* Vídeo do paciente (picture-in-picture) */}
+        <Box sx={{
+          position: 'absolute',
+          right: 20,
+          top: 20,
+          width: '180px',
+          height: '120px',
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '2px solid #ffffff70',
+          bgcolor: '#4caf50'
+        }}>
+          <canvas 
+            id="canvas-paciente" 
+            width="320" 
+            height="240" 
+            style={{ display: 'none' }}
+          ></canvas>
+          <video 
+            id="video-canvas-paciente"
+            autoPlay 
+            playsInline
+            muted
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          ></video>
+        </Box>
+        
+        {/* Controles da chamada */}
         <Box sx={{ 
-          width: 120, 
-          height: 120, 
-          borderRadius: '50%', 
-          bgcolor: '#2196f3',
+          position: 'absolute', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          p: 2,
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: '3rem',
-          mb: 2
+          gap: 2,
+          background: 'rgba(0, 0, 0, 0.5)'
         }}>
-          P
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={onEndCall}
+            sx={{ borderRadius: 8 }}
+          >
+            Encerrar Chamada
+          </Button>
         </Box>
-
-        <Button 
-          variant="contained" 
-          color="error" 
-          onClick={onEndCall}
-          sx={{ mt: 2 }}
-        >
-          Encerrar Chamada
-        </Button>
       </Box>
     </Box>
   );
