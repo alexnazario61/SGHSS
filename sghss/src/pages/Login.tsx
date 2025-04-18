@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -13,13 +13,28 @@ import {
 import { useApp } from '../contexts/AppContext';
 import { authService } from '../services/api';
 
+// Função para extrair parâmetros de query da URL
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const Login = () => {
   const navigate = useNavigate();
-  const { setUsuario } = useApp();
+  const query = useQuery();
+  const { setUsuario, usuario } = useApp();
   const [error, setError] = useState('');
+  const redirectPath = query.get('redirect') || '/';
+
+  // Se já estiver autenticado, redireciona
+  useEffect(() => {
+    if (usuario) {
+      navigate(redirectPath);
+    }
+  }, [usuario, navigate, redirectPath]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError('');
     const formData = new FormData(event.currentTarget);
     
     try {
@@ -28,9 +43,8 @@ const Login = () => {
         formData.get('senha') as string
       );
       
-      setUsuario(response.usuario);
-      localStorage.setItem('token', response.token);
-      navigate('/');
+      setUsuario(response.usuario || response.user);
+      navigate(redirectPath);
     } catch (err) {
       setError('Email ou senha inválidos');
     }
@@ -50,6 +64,12 @@ const Login = () => {
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             SGHSS - Login
           </Typography>
+
+          {query.get('expired') && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Sessão expirada. Por favor, faça login novamente.
+            </Alert>
+          )}
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>

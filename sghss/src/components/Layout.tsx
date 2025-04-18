@@ -16,7 +16,12 @@ const menuItems = [
 
 const Layout: React.FC = () => {
   const navigate = useNavigate();
-  const { usuario } = useApp();
+  const { usuario, logout } = useApp();
+
+  // Função para lidar com cliques nos itens de menu
+  const handleMenuClick = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -81,7 +86,7 @@ const Layout: React.FC = () => {
             <ListItem 
               button 
               key={item.text} 
-              onClick={() => navigate(item.path)}
+              onClick={() => handleMenuClick(item.path)}
               sx={{ 
                 mb: 0.5, 
                 borderRadius: '0 24px 24px 0', 
@@ -101,11 +106,19 @@ const Layout: React.FC = () => {
         {/* Opções de conta na parte inferior */}
         <Box sx={{ mt: 'auto', mb: 2 }}>
           <List>
-            <ListItem button sx={{ borderRadius: '0 24px 24px 0', ml: 1 }}>
+            <ListItem 
+              button 
+              onClick={() => handleMenuClick('/configuracoes')}
+              sx={{ borderRadius: '0 24px 24px 0', ml: 1 }}
+            >
               <ListItemIcon sx={{ minWidth: 40 }}><Settings /></ListItemIcon>
               <ListItemText primary="Configurações" />
             </ListItem>
-            <ListItem button sx={{ borderRadius: '0 24px 24px 0', ml: 1 }}>
+            <ListItem 
+              button 
+              onClick={logout} 
+              sx={{ borderRadius: '0 24px 24px 0', ml: 1 }}
+            >
               <ListItemIcon sx={{ minWidth: 40 }}><Logout /></ListItemIcon>
               <ListItemText primary="Sair" />
             </ListItem>
