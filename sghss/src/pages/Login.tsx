@@ -9,7 +9,6 @@ import {
   TextField,
   Button,
   Alert,
-  Link,
 } from '@mui/material';
 import { useApp } from '../contexts/AppContext';
 import { authService } from '../services/api';
