@@ -9,6 +9,7 @@ import {
   TextField,
   Button,
   Alert,
+  Link,
 } from '@mui/material';
 import { useApp } from '../contexts/AppContext';
 import { authService } from '../services/api';
@@ -108,6 +109,17 @@ const Login = () => {
             </Button>
           </Box>
         </Paper>
+        
+        {/* Rodapé com informações do desenvolvedor */}
+        <Box sx={{ mt: 3, textAlign: 'center' }}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{ fontStyle: 'italic' }}
+          >
+            Desenvolvido por Alexsander Lima Nazario - RU: 4314832
+          </Typography>
+        </Box>
       </Box>
     </Container>
   );
