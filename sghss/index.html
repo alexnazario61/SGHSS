@@ -3,8 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1976d2" />
+    <meta name="description" content="Sistema de Gestão Hospitalar - SGHSS" />
     <title>SGHSS - Sistema de Gestão Hospitalar</title>
+    <style>
+      /* Estilos base para melhor responsividade */
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow-x: hidden;
+      }
+      
+      /* Animação de pulsar para indicação de gravação */
+      @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+      }
+      
+      /* Estilos para transições suaves da navegação */
+      .MuiDrawer-root {
+        transition: width 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms;
+      }
+      
+      /* Corrigir scroll indesejado na navbar */
+      .MuiDrawer-paper {
+        overflow-x: hidden !important;
+      }
+      
+      /* Ajuste para impedir sobreposição */
+      .MuiAppBar-root {
+        z-index: 1300 !important;
+      }
+      
+      /* Melhorias para dispositivos touch */
+      @media (pointer: coarse) {
+        .MuiButtonBase-root {
+          padding: 8px !important;
+        }
+      }
+      
+      /* Estilos para visualização de impressão */
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        body {
+          background-color: white !important;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
