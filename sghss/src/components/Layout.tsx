@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Box, 
   Drawer, 
@@ -15,7 +15,8 @@ import {
   useMediaQuery,
   useTheme,
   SwipeableDrawer,
-  Tooltip
+  Tooltip,
+  ClickAwayListener
 } from '@mui/material';
 import {
   Home,
@@ -52,8 +53,11 @@ const Layout: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   
-  // Novo estado para controlar se o drawer está recolhido ou não
-  const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
+  // Iniciar com a navbar recolhida
+  const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(true);
+  
+  // Ref para o drawer para detectar cliques fora
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   // Função para lidar com cliques nos itens de menu
   const handleMenuClick = (path: string) => {
@@ -70,6 +74,20 @@ const Layout: React.FC = () => {
   // Função para alternar entre drawer expandido e recolhido
   const toggleDrawerCollapsed = () => {
     setIsDrawerCollapsed(!isDrawerCollapsed);
+  };
+  
+  // Função para fechar o drawer quando clicar fora dele
+  const handleClickAway = (event: MouseEvent | TouchEvent) => {
+    // Só fecha automaticamente se estiver expandido e não for mobile
+    if (!isMobile && !isDrawerCollapsed) {
+      // Verifica se o clique não foi em um elemento dentro da AppBar
+      const appBar = document.querySelector('.MuiAppBar-root');
+      if (appBar && appBar.contains(event.target as Node)) {
+        return;
+      }
+      
+      setIsDrawerCollapsed(true);
+    }
   };
 
   // Determinar a largura atual do drawer
@@ -184,6 +202,7 @@ const Layout: React.FC = () => {
             duration: theme.transitions.duration.leavingScreen
           })
         }}
+        className="app-bar"
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {isMobile && (
@@ -241,65 +260,68 @@ const Layout: React.FC = () => {
       </AppBar>
       
       {/* Drawer com versão responsiva e recolhível */}
-      <Box
-        component="nav"
-        sx={{ 
-          width: { md: currentDrawerWidth }, 
-          flexShrink: { md: 0 },
-          transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen
-          })
-        }}
-      >
-        {/* Versão móvel (temporária) */}
-        {isMobile ? (
-          <SwipeableDrawer
-            variant="temporary"
-            open={mobileOpen}
-            onOpen={() => setMobileOpen(true)}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true, // Melhor desempenho em dispositivos móveis
-            }}
-            sx={{
-              '& .MuiDrawer-paper': { 
-                width: DRAWER_WIDTH,
-                boxSizing: 'border-box',
-                transition: theme.transitions.create('width', {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.enteringScreen
-                }),
-                overflowX: 'hidden' // Impede scroll horizontal
-              },
-            }}
-          >
-            {drawer}
-          </SwipeableDrawer>
-        ) : (
-          // Versão desktop (permanente e recolhível)
-          <Drawer
-            variant="permanent"
-            sx={{
-              '& .MuiDrawer-paper': { 
-                width: isDrawerCollapsed ? MINI_DRAWER_WIDTH : DRAWER_WIDTH, 
-                boxSizing: 'border-box',
-                borderRight: '1px solid rgba(0, 0, 0, 0.12)',
-                overflowX: 'hidden', // Impede scroll horizontal
-                transition: theme.transitions.create('width', {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.enteringScreen,
-                }),
-                whiteSpace: 'nowrap'
-              },
-              display: { xs: 'none', md: 'block' }
-            }}
-            open={!isDrawerCollapsed}
-          >
-            {drawer}
-          </Drawer>
-        )}
-      </Box>
+      <ClickAwayListener onClickAway={handleClickAway}>
+        <Box
+          ref={drawerRef}
+          component="nav"
+          sx={{ 
+            width: { md: currentDrawerWidth }, 
+            flexShrink: { md: 0 },
+            transition: theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen
+            })
+          }}
+        >
+          {/* Versão móvel (temporária) */}
+          {isMobile ? (
+            <SwipeableDrawer
+              variant="temporary"
+              open={mobileOpen}
+              onOpen={() => setMobileOpen(true)}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Melhor desempenho em dispositivos móveis
+              }}
+              sx={{
+                '& .MuiDrawer-paper': { 
+                  width: DRAWER_WIDTH,
+                  boxSizing: 'border-box',
+                  transition: theme.transitions.create('width', {
+                    easing: theme.transitions.easing.sharp,
+                    duration: theme.transitions.duration.enteringScreen
+                  }),
+                  overflowX: 'hidden' // Impede scroll horizontal
+                },
+              }}
+            >
+              {drawer}
+            </SwipeableDrawer>
+          ) : (
+            // Versão desktop (permanente e recolhível)
+            <Drawer
+              variant="permanent"
+              sx={{
+                '& .MuiDrawer-paper': { 
+                  width: isDrawerCollapsed ? MINI_DRAWER_WIDTH : DRAWER_WIDTH, 
+                  boxSizing: 'border-box',
+                  borderRight: '1px solid rgba(0, 0, 0, 0.12)',
+                  overflowX: 'hidden', // Impede scroll horizontal
+                  transition: theme.transitions.create('width', {
+                    easing: theme.transitions.easing.sharp,
+                    duration: theme.transitions.duration.enteringScreen,
+                  }),
+                  whiteSpace: 'nowrap'
+                },
+                display: { xs: 'none', md: 'block' }
+              }}
+              open={!isDrawerCollapsed}
+            >
+              {drawer}
+            </Drawer>
+          )}
+        </Box>
+      </ClickAwayListener>
 
       {/* Conteúdo principal com padding adequado */}
       <Box 
